@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "110440454715",
+    "firebase_url": "https://upward-thumb.firebaseio.com",
+    "project_id": "upward-thumb",
+    "storage_bucket": "upward-thumb.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:110440454715:android:ac14630440a778d6",
+        "android_client_info": {
+          "package_name": "com.elevenventures.app.upwardthumb"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "110440454715-1easoeoid1nn8dh40p2e5ia1n0ja926e.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAT0Q4kZbTpgyAouf0bF-Km0Wt9kPzGrl8"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

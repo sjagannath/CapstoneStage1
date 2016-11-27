@@ -1,0 +1,20 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <fragment xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/map"
+        android:name="com.google.android.gms.maps.SupportMapFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context="com.elevenventures.app.upwardthumb.MapsActivity" />
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/fab_hitchhike"
+        android:layout_gravity="bottom|center_horizontal"
+        android:layout_width="@dimen/fab_min_height"
+        android:layout_height="@dimen/fab_min_width"
+        android:layout_marginBottom="24dp"
+        android:elevation="@dimen/fab_elevation"
+        android:src="@drawable/ic_thumb_up_black_24dp" />
+</FrameLayout>
