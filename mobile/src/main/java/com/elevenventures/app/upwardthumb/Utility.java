@@ -104,7 +104,7 @@ public class Utility {
         return ContextCompat.checkSelfPermission(context, Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED;
     }
 
-    private static final int MY_PERMISSIONS_REQUEST_READ_LOCATION = 1;
+    public static final int MY_PERMISSIONS_REQUEST_READ_LOCATION = 1;
 
     public static void requestLocationPermission(Context context) {
         ActivityCompat.requestPermissions((Activity) context,

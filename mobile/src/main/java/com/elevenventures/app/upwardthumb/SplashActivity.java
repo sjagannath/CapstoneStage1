@@ -20,7 +20,7 @@ public class SplashActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
-        mNeedLocationPermission = Utility.hasLocationPermission();
+        mNeedLocationPermission = Utility.hasLocationPermission(this);
         Log.d(TAG, "mNeedLocationPermission =" + mNeedLocationPermission);
     }
 
@@ -53,7 +53,7 @@ public class SplashActivity extends AppCompatActivity {
         if (isFinishing()) {
             return;
         }
-        if (requestCode == MY_PERMISSIONS_REQUEST_READ_LOCATION) {
+        if (requestCode == Utility.MY_PERMISSIONS_REQUEST_READ_LOCATION) {
             mNeedLocationPermission = (grantResults != null && grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED);
             if(!mNeedLocationPermission){
                 //permission given

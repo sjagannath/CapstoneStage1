@@ -31,7 +31,6 @@ import android.widget.Toast;
 import com.elevenventures.app.upwardthumb.data.ContactData;
 import com.elevenventures.app.upwardthumb.data.ProviderReadAndSMSAsyncTask;
 import com.elevenventures.app.upwardthumb.data.RideContactsContract;
-import com.elevenventures.app.upwardthumb.web.EndpointsAsyncTask;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
