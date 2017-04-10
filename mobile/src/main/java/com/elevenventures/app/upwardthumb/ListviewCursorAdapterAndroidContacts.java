@@ -5,6 +5,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.provider.ContactsContract;
 import android.support.v4.widget.CursorAdapter;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,6 +16,7 @@ import android.widget.TextView;
 import com.elevenventures.app.upwardthumb.data.ContactData;
 
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * Created by SJagannath on 11/26/2016.
@@ -22,7 +24,7 @@ import java.util.HashMap;
 
 public class ListviewCursorAdapterAndroidContacts extends CursorAdapter implements AdapterView.OnItemClickListener {
 
-    private static final String TAG = "ListviewCursorAdapterAndroidContacts";
+    private static final String TAG = "AdapterAndroidContacts";
     private final HashMap<Integer, ContactData> mSelectedContacts = new HashMap();
 
     public ListviewCursorAdapterAndroidContacts(Context context, Cursor c) {
@@ -37,9 +39,11 @@ public class ListviewCursorAdapterAndroidContacts extends CursorAdapter implemen
     }
 
     public ContactData[] getSelectedContacts() {
+        Log.d(TAG, "getSelectedContacts: " + mSelectedContacts.keySet());
         ContactData[] toReturn = new ContactData[mSelectedContacts.size()];
         int index = 0;
         for (ContactData contact : mSelectedContacts.values()) {
+            Log.d(TAG, "phone number: " + contact.phoneNumber);
             toReturn[index] = contact;
             index++;
         }
@@ -70,12 +74,13 @@ public class ListviewCursorAdapterAndroidContacts extends CursorAdapter implemen
 
     @Override
     public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
+        Log.d(TAG, "item click: " + getCursor().getCount() + " positon = " + position);
         Cursor cursor = getCursor();
-        if (cursor == null || cursor.getCount() <= position) {
+        if (cursor == null || cursor.getCount() < position) {
             return;
         }
         cursor.moveToPosition(position);
-        boolean newState = changeCheckedState(cursor);
+        boolean newState = changeCheckedState(cursor, false, position);
         setImageviewCheckbox((ImageView) view.findViewById(R.id.checkboxSelectedContact), newState);
     }
 
@@ -87,7 +92,17 @@ public class ListviewCursorAdapterAndroidContacts extends CursorAdapter implemen
         }
     }
 
-    private boolean changeCheckedState(Cursor cursor) {
+    public void addToSelectedContacts(ContactData data) {
+        if (data == null) {
+            return;
+        }
+        if (!mSelectedContacts.containsKey(data.id)) {
+            mSelectedContacts.put(data.id, data);
+            notifyDataSetChanged();
+        }
+    }
+
+    private boolean changeCheckedState(Cursor cursor, boolean isSearchRelated, int position) {
         int rowId = cursor.getInt(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone._ID));
         boolean isNowChecked;
         if (mSelectedContacts.containsKey(rowId)) {
@@ -95,7 +110,13 @@ public class ListviewCursorAdapterAndroidContacts extends CursorAdapter implemen
             mSelectedContacts.remove(rowId);
         } else {
             isNowChecked = true;
-            mSelectedContacts.put(rowId, Utility.getContactDataFromAndroidContacts(cursor));
+            List<ContactData> contactDataFromAndroidContacts = Utility.getContactDataFromAndroidContacts(cursor, isSearchRelated);
+            if (contactDataFromAndroidContacts != null && contactDataFromAndroidContacts.size() > position) {
+                mSelectedContacts.put(rowId, contactDataFromAndroidContacts.get(position));
+                Log.d(TAG, "" + contactDataFromAndroidContacts.get(position));
+            } else {
+                isNowChecked = false;
+            }
         }
         return isNowChecked;
     }

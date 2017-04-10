@@ -12,7 +12,7 @@ import android.util.Log;
 
 public class SplashActivity extends AppCompatActivity {
 
-    private static final int MY_PERMISSIONS_REQUEST_READ_LOCATION = 1;
+
     private static final String TAG = "Capstone";
     private boolean mNeedLocationPermission;
 
@@ -20,9 +20,11 @@ public class SplashActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
-        mNeedLocationPermission = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED;
+        mNeedLocationPermission = Utility.hasLocationPermission();
         Log.d(TAG, "mNeedLocationPermission =" + mNeedLocationPermission);
     }
+
+
 
     @Override
     protected void onResume() {
@@ -40,9 +42,7 @@ public class SplashActivity extends AppCompatActivity {
 
     private void checkLocationPermission() {
         if (mNeedLocationPermission) {
-            ActivityCompat.requestPermissions(this,
-                    new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
-                    MY_PERMISSIONS_REQUEST_READ_LOCATION);
+            Utility.requestLocationPermission(this);
         }
 
     }

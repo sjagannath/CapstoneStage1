@@ -1,8 +1,8 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 25
-    buildToolsVersion "25.0.0"
+    compileSdkVersion 'Google Inc.:Google APIs:24'
+    buildToolsVersion '24.0.3'
     defaultConfig {
         applicationId "com.elevenventures.app.upwardthumb"
         minSdkVersion 21
@@ -34,7 +34,9 @@ dependencies {
     compile 'com.google.firebase:firebase-messaging:9.8.0'
     compile 'com.google.firebase:firebase-core:9.8.0'
     compile 'com.github.bumptech.glide:glide:3.7.0'
+    compile 'com.google.code.findbugs:jsr305:2.0.1'
     testCompile 'junit:junit:4.12'
+    compile project(path: ':backend', configuration: 'android-endpoints')
 }
 
 apply plugin: 'com.google.gms.google-services'

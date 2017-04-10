@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 
-<android.support.v7.widget.Toolbar xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.v7.widget.Toolbar xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/toolbar"
     android:layout_width="match_parent"
@@ -10,4 +9,4 @@
     android:background="?attr/colorPrimary"
     android:logo="@drawable/lady_biker"
     android:paddingRight="@dimen/activity_horizontal_margin"
-    tools:showIn="@layout/activity_ride_request" />
+    tools:showIn="@layout/activity_select_contacts" />

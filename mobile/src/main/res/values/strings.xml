@@ -6,4 +6,10 @@
     <string name="select_contacts">Select contacts</string>
     <string name="add_contacts_success">Contacts successfully set up!</string>
     <string name="add_contacts_failed">Contacts setup failed. Please try again.</string>
+    <string name="new_group">Create new group</string>
+    <string name="title_select_group">Select group</string>
+    <string name="processing_last_hitch_request">Hang on, sending out your last request!</string>
+    <string name="sms_body">Hi! I need a ride, and I\'m located at http://maps.google.com/?q=%1$f,%2$f . Can you help me out?"</string>
+    <string name="findContact">Find contact</string>
+    <string name="contact_chooser_title">Choose group</string>
 </resources>

@@ -1,5 +1,6 @@
 package com.elevenventures.app.upwardthumb;
 
+import android.app.Dialog;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -7,6 +8,7 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.database.Cursor;
 import android.location.Location;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -17,12 +19,19 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.support.v4.util.Pair;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
+import android.widget.Toast;
 
 import com.elevenventures.app.upwardthumb.data.ContactData;
+import com.elevenventures.app.upwardthumb.data.ProviderReadAndSMSAsyncTask;
 import com.elevenventures.app.upwardthumb.data.RideContactsContract;
+import com.elevenventures.app.upwardthumb.web.EndpointsAsyncTask;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -31,15 +40,20 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
-public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, LocationListenerService.ILocationListener, ServiceConnection, LoaderManager.LoaderCallbacks<Cursor> {
+public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, LocationListenerService.ILocationListener, ServiceConnection,
+        LoaderManager.LoaderCallbacks<Cursor>, ProviderReadAndSMSAsyncTask.IProviderReadStatusListener {
 
     private static final String TAG = "MapsActivity";
     private static final int MSG_HITCH_REQUESTED = 0;
+    private static final int MSG_HITCH_CONTACTS = 1;
     private GoogleMap mMap;
     private LocationListenerService mLocationListenerService;
     private static final int LOADER_ID_LOCAL_CONTACTS = 0;
+    private ProviderReadAndSMSAsyncTask mProviderReadAndSMSAsyncTask;
 
     private Handler mHandler = new Handler() {
         @Override
@@ -51,12 +65,50 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     if (mContactsList == null || mContactsList.size() == 0) {
                         showSetUpContacts();
                     } else {
-                        showContactCheckList();
+                        showGroupChooser();
                     }
+                    break;
+                case MSG_HITCH_CONTACTS:
+                    String groupName = (String) msg.obj;
+                    Log.d(TAG, "asking rides from group: " + groupName);
+                    mProviderReadAndSMSAsyncTask = new ProviderReadAndSMSAsyncTask(MapsActivity.this, MapsActivity.this, mLastLatLng);
+                    mProviderReadAndSMSAsyncTask.execute(groupName);
                     break;
             }
         }
     };
+    private LatLng mLastLatLng;
+
+    private void showGroupChooser() {
+        if (mProviderReadAndSMSAsyncTask != null && mProviderReadAndSMSAsyncTask.getStatus() == AsyncTask.Status.RUNNING) {
+            Toast.makeText(this, R.string.processing_last_hitch_request, Toast.LENGTH_SHORT).show();
+            return;
+        }
+        final Dialog groupNameDialog = new Dialog(this);
+        groupNameDialog.setContentView(R.layout.choose_group_layout_no_edit);
+        groupNameDialog.setTitle(R.string.title_select_group);
+        Set<String> groupNames = Utility.getGroupNames(this);
+//        if (groupNames == null) {
+//            groupNames = new HashSet<>();
+//            groupNames.add("default");
+//        }
+        ArrayAdapter<String> listAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, new ArrayList<>(groupNames));
+        ListView listView = (ListView) groupNameDialog.findViewById(R.id.groupNamesList);
+        listView.setAdapter(listAdapter);
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                String groupName = (String) adapterView.getAdapter().getItem(i);
+                Log.d(TAG, "group Name chosen = " + groupName);
+                Message msg = mHandler.obtainMessage(MSG_HITCH_CONTACTS);
+                msg.obj = groupName;
+                mHandler.sendMessage(msg);
+                groupNameDialog.dismiss();
+            }
+        });
+        groupNameDialog.show();
+    }
+
     private List<ContactData> mContactsList;
 
     private void showSetUpContacts() {
@@ -76,10 +128,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         dialog.show();
     }
 
-    private void showContactCheckList() {
-        Log.d(TAG, "" + mContactsList);
-    }
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -92,6 +140,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         Log.d(TAG, "bindService");
         initViews();
         getSupportLoaderManager().initLoader(LOADER_ID_LOCAL_CONTACTS, null, this);
+        //new EndpointsAsyncTask().execute(new Pair<Context, String>(this, "Hannibal"));
     }
 
     private void initViews() {
@@ -133,9 +182,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         Log.d(TAG, "onLocationChanged + " + location);
         if (mMap != null) {
             mMap.clear();
-            LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
-            mMap.addMarker(new MarkerOptions().position(latLng).title("You are here"));
-            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 13.0f));
+            mLastLatLng = new LatLng(location.getLatitude(), location.getLongitude());
+            mMap.addMarker(new MarkerOptions().position(mLastLatLng).title("You are here"));
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(mLastLatLng, 13.0f));
         }
     }
 
@@ -163,6 +212,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
+    }
 
+    @Override
+    public void onReadAndSMSCompleted(boolean success) {
+        Toast.makeText(this, "Did we send an SMS? " + (success ? "Yes we did!" : "No we didn't :-("), Toast.LENGTH_SHORT).show();
     }
 }
